@@ -10,14 +10,15 @@ import axios from 'axios';
 import { Network } from 'vis-network';
 import { DataSet } from 'vis-data';
 import 'vis-network/styles/vis-network.css';
+import eventBus from '@/eventBus';
 
 export default {
   name: 'GraphVisualization',
   data() {
     return {
       network: null,
-      nodes: [],
-      edges: [],
+      nodes: new DataSet([]),
+      edges: new DataSet([]),
     };
   },
   methods: {
@@ -25,19 +26,20 @@ export default {
       try {
         const response = await axios.get('http://localhost:3000/graph-data');
         const data = response.data;
-        this.nodes = data.nodes;
-        this.edges = data.edges;
-        this.drawGraph();
+        
+        // Atualizar os nodes e edges existentes
+        this.nodes.clear();
+        this.nodes.add(data.nodes);
+        
+        this.edges.clear();
+        this.edges.add(data.edges);
+        
       } catch (error) {
         console.error('Erro ao obter dados do grafo:', error);
       }
     },
     drawGraph() {
       const container = this.$el.querySelector('#graph');
-      const data = {
-        nodes: new DataSet(this.nodes),
-        edges: new DataSet(this.edges),
-      };
       const options = {
         nodes: {
           shape: 'dot',
@@ -67,25 +69,20 @@ export default {
           improvedLayout: true,
         },
       };
-      if (this.network) {
-        this.network.setData(data);
-      } else {
-        this.network = new Network(container, data, options);
-      }
-    },
-    startAutoRefresh() {
-      this.fetchGraphData();
-      this.refreshInterval = setInterval(this.fetchGraphData, 1000);
-    },
-    stopAutoRefresh() {
-      clearInterval(this.refreshInterval);
+      
+      this.network = new Network(container, { nodes: this.nodes, edges: this.edges }, options);
     },
   },
   mounted() {
-    this.startAutoRefresh();
+    this.drawGraph();
+    this.fetchGraphData();
+
+    // Ouve o evento de atualização e chama fetchGraphData quando ele ocorre
+    eventBus.on('update-graph', this.fetchGraphData);
   },
   beforeUnmount() {
-    this.stopAutoRefresh();
+    // Remove o listener ao desmontar o componente
+    eventBus.off('update-graph', this.fetchGraphData);
   },
 };
 </script>

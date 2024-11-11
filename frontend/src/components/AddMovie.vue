@@ -10,6 +10,7 @@
 
 <script>
 import axios from 'axios';
+import eventBus from '@/eventBus';
 
 export default {
   data() {
@@ -26,6 +27,7 @@ export default {
           title: this.title,
           year: this.year,
         });
+        eventBus.emit('update-graph');
         this.message = response.data.message;
         this.title = '';
         this.year = null;

@@ -15,6 +15,7 @@
 
 <script>
 import axios from 'axios';
+import eventBus from '@/eventBus';
 
 export default {
   data() {
@@ -33,6 +34,7 @@ export default {
           movieTitle: this.movieTitle,
           relationType: this.relationType,
         });
+        eventBus.emit('update-graph');
         this.message = response.data.message;
         this.username = '';
         this.movieTitle = '';
