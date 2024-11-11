@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="component-container">
     <h2>Obter Recomendações e Filmes Curtidos</h2>
     <input v-model="username" placeholder="Nome do usuário" />
     <button @click="getRecommendations">Obter Recomendações</button>

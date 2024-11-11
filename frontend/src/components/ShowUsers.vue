@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="component-container">
     <h2>Todos os Usuários</h2>
     <button @click="getUsers">Mostrar Usuários</button>
     <ul v-if="users.length">

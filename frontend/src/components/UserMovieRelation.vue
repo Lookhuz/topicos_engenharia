@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="component-container">
     <h2>Relacionar Usuário e Filme</h2>
     <input v-model="username" placeholder="Nome do usuário" />
     <input v-model="movieTitle" placeholder="Título do filme" />

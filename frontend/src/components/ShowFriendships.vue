@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="component-container">
     <h2>Todas as Amizades</h2>
     <button @click="getFriendships">Mostrar Amizades</button>
     <ul v-if="friendships.length">

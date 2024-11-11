@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="component-container">
     <h2>Todos os Filmes</h2>
     <button @click="getMovies">Mostrar Filmes</button>
     <ul v-if="movies.length">
