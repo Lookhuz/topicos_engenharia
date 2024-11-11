@@ -36,6 +36,7 @@ import DeleteMovie from './components/DeleteMovie.vue';
 import ShowUsers from './components/ShowUsers.vue';
 import ShowMovies from './components/ShowMovies.vue';
 import ShowFriendships from './components/ShowFriendships.vue';
+import GraphVisualization from './components/GraphVisualization.vue';
 
 export default {
   name: 'App',
@@ -50,6 +51,7 @@ export default {
     ShowUsers,
     ShowMovies,
     ShowFriendships,
+    GraphVisualization,
   },
 };
 </script>

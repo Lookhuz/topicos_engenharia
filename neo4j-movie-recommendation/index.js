@@ -331,6 +331,57 @@ app.get('/friendships', async (req, res) => {
   }
 });
 
+// Endpoint para obter dados do grafo
+app.get('/graph-data', async (req, res) => {
+  try {
+    const result = await session.run(`
+      MATCH (n)
+      OPTIONAL MATCH (n)-[r]->(m)
+      RETURN n, r, m
+    `);
+
+    const nodesSet = new Set();
+    const edgesSet = new Set();
+
+    result.records.forEach((record) => {
+      // Processar o nó n
+      const node1 = record.get('n');
+      nodesSet.add(JSON.stringify({
+        id: node1.identity.low,
+        label: node1.properties.name || node1.properties.title,
+        group: node1.labels[0],
+      }));
+
+      // Se existir relacionamento, processar r e m
+      const relationship = record.get('r');
+      if (relationship) {
+        const node2 = record.get('m');
+        nodesSet.add(JSON.stringify({
+          id: node2.identity.low,
+          label: node2.properties.name || node2.properties.title,
+          group: node2.labels[0],
+        }));
+
+        edgesSet.add(JSON.stringify({
+          from: node1.identity.low,
+          to: node2.identity.low,
+          label: relationship.type,
+        }));
+      }
+    });
+
+    // Converter sets para arrays
+    const nodes = Array.from(nodesSet).map((node) => JSON.parse(node));
+    const edges = Array.from(edgesSet).map((edge) => JSON.parse(edge));
+
+    res.json({ nodes, edges });
+  } catch (error) {
+    console.error('Erro ao obter dados do grafo:', error);
+    res.status(500).send('Erro ao obter dados do grafo');
+  }
+});
+
+
 // Iniciar o servidor
 const PORT = 3000;
 app.listen(PORT, () => {
