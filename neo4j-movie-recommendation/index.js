@@ -47,7 +47,7 @@ app.post('/movies', async (req, res) => {
   }
 });
 
-// Criar relação de amizade
+// Criar amizade bidirecional entre dois usuários
 app.post('/friendships', async (req, res) => {
   const { user1, user2 } = req.body;
 
@@ -55,7 +55,8 @@ app.post('/friendships', async (req, res) => {
     await session.run(
       `
       MATCH (u1:User {name: $user1}), (u2:User {name: $user2})
-      CREATE (u1)-[:FRIENDS_WITH]->(u2)
+      MERGE (u1)-[:FRIENDS_WITH]->(u2)
+      MERGE (u2)-[:FRIENDS_WITH]->(u1)
       `,
       { user1, user2 }
     );
@@ -252,6 +253,81 @@ app.delete('/liked', async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).send('Erro ao remover relação de filme curtido');
+  }
+});
+
+// Marcar relação entre usuário e filme (Assistido, Curtido ou Ambos)
+app.post('/user-movie-relation', async (req, res) => {
+  const { username, movieTitle, relationType } = req.body;
+
+  try {
+    const queries = {
+      WATCHED: `MATCH (u:User {name: $username}), (m:Movie {title: $movieTitle}) 
+                MERGE (u)-[:WATCHED]->(m)`,
+      LIKED: `MATCH (u:User {name: $username}), (m:Movie {title: $movieTitle}) 
+              MERGE (u)-[:LIKED]->(m)`,
+      BOTH: `MATCH (u:User {name: $username}), (m:Movie {title: $movieTitle}) 
+             MERGE (u)-[:WATCHED]->(m)
+             MERGE (u)-[:LIKED]->(m)`,
+    };
+
+    await session.run(queries[relationType], { username, movieTitle });
+    res.status(201).json({ message: `Relação ${relationType} criada com sucesso` });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Erro ao criar relação entre usuário e filme');
+  }
+});
+
+// Obter todos os usuários
+app.get('/users', async (req, res) => {
+  try {
+    const result = await session.run(`MATCH (u:User) RETURN u.name AS name, u.age AS age`);
+    const users = result.records.map((record) => ({
+      name: record.get('name'),
+      age: record.get('age').low,
+    }));
+
+    res.json(users);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Erro ao obter usuários');
+  }
+});
+
+// Obter todos os filmes
+app.get('/movies', async (req, res) => {
+  try {
+    const result = await session.run(`MATCH (m:Movie) RETURN m.title AS title, m.year AS year`);
+    const movies = result.records.map((record) => ({
+      title: record.get('title'),
+      year: record.get('year').low,
+    }));
+
+    res.json(movies);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Erro ao obter filmes');
+  }
+});
+
+// Obter todas as amizades
+app.get('/friendships', async (req, res) => {
+  try {
+    const result = await session.run(`
+      MATCH (u1:User)-[:FRIENDS_WITH]->(u2:User)
+      RETURN u1.name AS user1, u2.name AS user2
+    `);
+
+    const friendships = result.records.map((record) => ({
+      user1: record.get('user1'),
+      user2: record.get('user2'),
+    }));
+
+    res.json(friendships);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Erro ao obter amizades');
   }
 });
 

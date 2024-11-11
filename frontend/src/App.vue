@@ -9,7 +9,9 @@
     <UserRecommendations />
     <DeleteUser />
     <DeleteMovie />
-    <!-- Adicione mais componentes conforme necessário -->
+    <ShowUsers />
+    <ShowMovies />
+    <ShowFriendships />
   </div>
 </template>
 
@@ -21,6 +23,9 @@ import UserMovieRelation from './components/UserMovieRelation.vue';
 import UserRecommendations from './components/UserRecommendations.vue';
 import DeleteUser from './components/DeleteUser.vue';
 import DeleteMovie from './components/DeleteMovie.vue';
+import ShowUsers from './components/ShowUsers.vue';
+import ShowMovies from './components/ShowMovies.vue';
+import ShowFriendships from './components/ShowFriendships.vue';
 
 export default {
   name: 'App',
@@ -32,7 +37,9 @@ export default {
     UserRecommendations,
     DeleteUser,
     DeleteMovie,
-    // Adicione outros componentes aqui conforme necessário
+    ShowUsers,
+    ShowMovies,
+    ShowFriendships,
   },
 };
 </script>
